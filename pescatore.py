@@ -1,8 +1,13 @@
 import yfinance as yf
 import pandas as pd
 import os
+import argparse
 
-settore = input("Quale lista vuoi scaricare? (es: tech o energy): ").strip().lower()
+parser = argparse.ArgumentParser()
+parser.add_argument('--sector', type=str, help='Il settore da analizzare')
+args = parser.parse_args()
+
+settore = args.sector # Ora il settore viene preso dal comando --sector
 file_lista = f"{settore}.csv"
 cartella_destinazione = f"database_{settore}"
 
