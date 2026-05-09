@@ -6,6 +6,7 @@ on:
   push:
     paths:
       - 'lists/*.csv' # Si attiva se carichi un nuovo file di ticker
+  workflow_dispatch: # Questo aggiunge un tasto "Run" manuale (molto utile per i test!)
 
 jobs:
   analyze:
