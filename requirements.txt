@@ -1,0 +1,13 @@
+torch
+torchvision
+torchaudio
+yfinance
+pandas
+numpy
+plotly
+kaleido
+python-docx
+requests
+huggingface_hub
+tqdm
+scipy
