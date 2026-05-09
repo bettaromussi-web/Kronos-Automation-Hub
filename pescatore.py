@@ -1,9 +1,10 @@
+import sys
+import os
 import yfinance as yf
 import pandas as pd
-import os
 import argparse
 
-# Aggiunge la cartella corrente al percorso di ricerca di Python
+# --- FIX PERCORSO ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
