@@ -3,6 +3,18 @@ import pandas as pd
 import os
 import argparse
 
+# Aggiunge la cartella corrente al percorso di ricerca di Python
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
+try:
+    from model import Kronos, KronosTokenizer, KronosPredictor
+except ImportError:
+    print("❌ Errore: Cartella 'model' non trovata nella directory corrente!")
+    print(f"Directory attuale: {os.getcwd()}")
+    print(f"Contenuto: {os.listdir('.')}")
+    sys.exit(1)
+    
 parser = argparse.ArgumentParser()
 parser.add_argument('--sector', type=str, help='Il settore da analizzare')
 args = parser.parse_args()
