@@ -26,7 +26,7 @@ def send_telegram_alert(message):
 # --- CONFIGURAZIONE SISTEMA ---
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument('--sector', type=str, required=True)
+parser.add_argument('--sector', type=str, help='Il settore da analizzare')
 args = parser.parse_args()
 
 SETTORE = args.sector.lower()
