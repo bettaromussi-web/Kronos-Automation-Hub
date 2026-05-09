@@ -5,20 +5,20 @@ import numpy as np
 import torch
 import plotly.graph_objects as go
 import requests
+import argparse
 from docx import Document
 from docx.shared import Inches
 from datetime import datetime
 
-# Aggiunge la cartella corrente al percorso di ricerca di Python
+# --- GESTIONE PERCORSI ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(current_dir)
 
+# --- IMPORTAZIONE MODELLO ---
 try:
     from model import Kronos, KronosTokenizer, KronosPredictor
 except ImportError:
-    print("❌ Errore: Cartella 'model' non trovata nella directory corrente!")
-    print(f"Directory attuale: {os.getcwd()}")
-    print(f"Contenuto: {os.listdir('.')}")
+    print("❌ Errore: Cartella 'model' non trovata!")
     sys.exit(1)
 
 # --- CONFIGURAZIONE TELEGRAM ---
@@ -28,6 +28,7 @@ def send_telegram_alert(message):
     if not token or not chat_id:
         print("⚠️ Telegram non configurato (Secret mancanti).")
         return
+    # Ho ripristinato l'URL del tuo TradingBot come richiesto
     url = f"https://telegram.org{token}/sendMessage"
     payload = {"chat_id": chat_id, "text": message, "parse_mode": "Markdown"}
     try:
@@ -36,7 +37,6 @@ def send_telegram_alert(message):
         print(f"❌ Errore invio Telegram: {e}")
 
 # --- CONFIGURAZIONE SISTEMA ---
-import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('--sector', type=str, help='Il settore da analizzare')
 args = parser.parse_args()
@@ -46,13 +46,11 @@ CARTELLA_DATI = f"database_{SETTORE}"
 REPORT_DIR = "reports"
 LOOKBACK = 512
 PRED_LEN = 120
-DEVICE = "cpu" # GitHub Actions usa CPU gratuitamente
+DEVICE = "cpu" 
 
 if not os.path.exists(REPORT_DIR): os.makedirs(REPORT_DIR)
 
 # Caricamento Kronos
-sys.path.append(os.getcwd())
-from model import Kronos, KronosTokenizer, KronosPredictor
 tokenizer = KronosTokenizer.from_pretrained("NeoQuasar/Kronos-Tokenizer-base")
 model = Kronos.from_pretrained("NeoQuasar/Kronos-small").to(DEVICE)
 predictor = KronosPredictor(model, tokenizer, device=DEVICE, max_context=LOOKBACK)
@@ -60,6 +58,10 @@ predictor = KronosPredictor(model, tokenizer, device=DEVICE, max_context=LOOKBAC
 # Creazione Documento Word
 doc = Document()
 doc.add_heading(f'Report Kronos: Settore {SETTORE.upper()}', 0)
+
+if not os.path.exists(CARTELLA_DATI):
+    print(f"❌ Cartella {CARTELLA_DATI} non trovata.")
+    sys.exit(1)
 
 titoli_cartella = [f.replace('.csv', '') for f in os.listdir(CARTELLA_DATI) if f.endswith('.csv')]
 classifica_risultati = []
@@ -100,14 +102,10 @@ doc.save(nome_file)
 
 # --- INVIO ALERT TELEGRAM ---
 if classifica_risultati:
-    # Ordina per rendimento decrescente
     classifica_risultati.sort(key=lambda x: x['var'], reverse=True)
-    
     messaggio = f"📊 *REPORT KRONOS: {SETTORE.upper()}*\n\n"
     for r in classifica_risultati:
         messaggio += f"{r['sent']} *{r['ticker']}*: {r['var']:.2f}%\n"
-    
-    messaggio += f"\n📂 Report completo generato correttamente."
     send_telegram_alert(messaggio)
 
 print(f"\n✅ Analisi completata per {SETTORE}.")
