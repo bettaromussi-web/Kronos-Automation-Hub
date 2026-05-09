@@ -11,14 +11,16 @@ from docx.shared import Inches
 from datetime import datetime
 
 # --- GESTIONE PERCORSI ---
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(current_dir)
+# Forza Python a guardare nella cartella principale del progetto
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 # --- IMPORTAZIONE MODELLO ---
 try:
-    from model import Kronos, KronosTokenizer, KronosPredictor
-except ImportError:
-    print("❌ Errore: Cartella 'model' non trovata!")
+    from model.kronos import Kronos, KronosTokenizer
+    from model.predictor import KronosPredictor
+    print("✅ Moduli caricati correttamente!")
+except ImportError as e:
+    print(f"❌ Errore critico di importazione: {e}")
     sys.exit(1)
 
 # --- CONFIGURAZIONE TELEGRAM ---
