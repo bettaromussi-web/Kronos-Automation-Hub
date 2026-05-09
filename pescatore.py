@@ -5,15 +5,15 @@ import pandas as pd
 import argparse
 
 # --- FIX PERCORSO ---
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(current_dir)
+# Forza Python a guardare nella cartella principale del progetto
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 try:
-    from model import Kronos, KronosTokenizer, KronosPredictor
-except ImportError:
-    print("❌ Errore: Cartella 'model' non trovata nella directory corrente!")
-    print(f"Directory attuale: {os.getcwd()}")
-    print(f"Contenuto: {os.listdir('.')}")
+    from model.kronos import Kronos, KronosTokenizer
+    from model.predictor import KronosPredictor
+    print("✅ Moduli caricati correttamente!")
+except ImportError as e:
+    print(f"❌ Errore critico di importazione: {e}")
     sys.exit(1)
     
 parser = argparse.ArgumentParser()
