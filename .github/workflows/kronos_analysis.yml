@@ -1,0 +1,43 @@
+name: Kronos Sector Analysis
+
+on:
+  schedule:
+    - cron: '0 14 * * 1-5' # Ogni giorno alle 15:00 (ora italiana) lun-ven
+  push:
+    paths:
+      - 'lists/*.csv' # Si attiva se carichi un nuovo file di ticker
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11' # Versione stabile ottimale
+
+      - name: Install Dependencies
+        run: |
+          pip install yfinance pandas numpy torch python-docx requests plotly kaleido
+          pip install -r requirements.txt
+
+      - name: Run Pescatore & Analista
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          # Esegue l'analisi per ogni file nella cartella lists/
+          for file in lists/*.csv; do
+            sector=$(basename "$file" .csv)
+            python pescatore.py --sector $sector
+            python analista.py --sector $sector
+          done
+
+      - name: Upload Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: finance-reports
+          path: reports/*.docx
