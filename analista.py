@@ -9,6 +9,18 @@ from docx import Document
 from docx.shared import Inches
 from datetime import datetime
 
+# Aggiunge la cartella corrente al percorso di ricerca di Python
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(current_dir)
+
+try:
+    from model import Kronos, KronosTokenizer, KronosPredictor
+except ImportError:
+    print("❌ Errore: Cartella 'model' non trovata nella directory corrente!")
+    print(f"Directory attuale: {os.getcwd()}")
+    print(f"Contenuto: {os.listdir('.')}")
+    sys.exit(1)
+
 # --- CONFIGURAZIONE TELEGRAM ---
 def send_telegram_alert(message):
     token = os.getenv('TELEGRAM_TOKEN')
