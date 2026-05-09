@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install yfinance pandas numpy torch python-docx requests plotly kaleido
+          pip install yfinance pandas numpy torch python-docx requests plotly kaleido huggingface_hub
           # Se hai un file requirements.txt, usa la riga sotto:
           # pip install -r requirements.txt
 
