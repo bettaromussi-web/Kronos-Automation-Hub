@@ -1,44 +1,46 @@
 name: Kronos Sector Analysis
 
 on:
-  schedule:
-    - cron: '0 14 * * 1-5' # Ogni giorno alle 15:00 (ora italiana) lun-ven
   push:
     paths:
-      - 'lists/*.csv' # Si attiva se carichi un nuovo file di ticker
-  workflow_dispatch: # Questo aggiunge un tasto "Run" manuale (molto utile per i test!)
+      - 'lists/**'  # Si attiva quando aggiungi o modifichi file in lists
+  workflow_dispatch: # Questo abilita il tasto "Run" manuale nella scheda Actions
 
 jobs:
   analyze:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # Aggiornato a v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # Aggiornato a v5
         with:
-          python-version: '3.11' # Versione stabile ottimale
+          python-version: '3.11'
 
       - name: Install Dependencies
         run: |
           pip install yfinance pandas numpy torch python-docx requests plotly kaleido
-          pip install -r requirements.txt
+          # Se hai un file requirements.txt, usa la riga sotto:
+          # pip install -r requirements.txt
 
       - name: Run Pescatore & Analista
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          # Esegue l'analisi per ogni file nella cartella lists/
+          # Crea la cartella reports se non esiste
+          mkdir -p reports
+          # Ciclo su tutti i file csv nella cartella lists
           for file in lists/*.csv; do
             sector=$(basename "$file" .csv)
+            echo "Analizzando settore: $sector"
             python pescatore.py --sector $sector
             python analista.py --sector $sector
           done
 
       - name: Upload Reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4 # FIX: Aggiornato a v4 come richiesto da GitHub
         with:
           name: finance-reports
           path: reports/*.docx
